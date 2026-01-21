@@ -1,6 +1,6 @@
 {
   "name": "@apiposture/cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Static source-code analysis CLI for Node.js API frameworks to identify authorization misconfigurations and security risks",
   "main": "dist/index.js",
   "bin": {
