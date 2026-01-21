@@ -29,6 +29,14 @@
   ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BlagoCuljak/ApiPosture.Node.js"
+  },
+  "bugs": {
+    "url": "https://github.com/BlagoCuljak/ApiPosture.Node.js/issues"
+  },
+  "homepage": "https://github.com/BlagoCuljak/ApiPosture.Node.js#readme",
   "engines": {
     "node": ">=18.0.0"
   },
