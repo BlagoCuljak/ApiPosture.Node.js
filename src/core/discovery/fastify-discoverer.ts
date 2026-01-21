@@ -146,7 +146,7 @@ export class FastifyDiscoverer implements EndpointDiscoverer {
     let method: HttpMethod | null = null;
     let url: string | null = null;
     let handlerName = 'handler';
-    let authorization = createDefaultAuthorizationInfo();
+    const authorization = createDefaultAuthorizationInfo();
 
     for (const prop of options.properties) {
       if (!ts.isPropertyAssignment(prop) || !ts.isIdentifier(prop.name)) {

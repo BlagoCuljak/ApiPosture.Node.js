@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Severity, parseSeverity } from '../models/severity.js';
+import { parseSeverity } from '../models/severity.js';
 import { RuleConfig } from '../../rules/rule-interface.js';
 
 export interface ApiPostureConfig {
@@ -59,8 +59,9 @@ export class ConfigLoader {
 
   private findConfigFile(startDir: string): string | null {
     let currentDir = startDir;
+    let parentDir = path.dirname(currentDir);
 
-    while (true) {
+    while (currentDir !== parentDir) {
       for (const fileName of CONFIG_FILE_NAMES) {
         const filePath = path.join(currentDir, fileName);
         if (fs.existsSync(filePath)) {
@@ -68,12 +69,8 @@ export class ConfigLoader {
         }
       }
 
-      const parentDir = path.dirname(currentDir);
-      if (parentDir === currentDir) {
-        // Reached root
-        break;
-      }
       currentDir = parentDir;
+      parentDir = path.dirname(currentDir);
     }
 
     return null;

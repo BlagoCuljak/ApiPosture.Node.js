@@ -10,7 +10,7 @@ import {
 } from '../analysis/source-file-loader.js';
 import { Endpoint, createEndpoint } from '../models/endpoint.js';
 import { EndpointType } from '../models/endpoint-type.js';
-import { HttpMethod, parseHttpMethod } from '../models/http-method.js';
+import { HttpMethod } from '../models/http-method.js';
 import { NestJSAuthExtractor } from '../authorization/nestjs-auth-extractor.js';
 
 const NESTJS_HTTP_DECORATORS = new Map<string, HttpMethod>([

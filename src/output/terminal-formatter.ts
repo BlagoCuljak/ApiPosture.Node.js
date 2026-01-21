@@ -1,4 +1,3 @@
-import Table from 'cli-table3';
 import { OutputFormatter, FormatterOptions } from './formatter-interface.js';
 import { AccessibilityHelper } from './accessibility-helper.js';
 import { ScanResult, getScanSummary } from '../core/models/scan-result.js';

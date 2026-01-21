@@ -5,16 +5,12 @@ import { SourceFileLoader, LoadedSourceFile } from './source-file-loader.js';
 import { EndpointDiscoverer } from '../discovery/discoverer-interface.js';
 import { SecurityRule } from '../../rules/rule-interface.js';
 
-export interface ProjectAnalyzerOptions {
-  configPath?: string;
-}
-
 export class ProjectAnalyzer {
   private sourceLoader: SourceFileLoader;
   private discoverers: EndpointDiscoverer[] = [];
   private rules: SecurityRule[] = [];
 
-  constructor(options: ProjectAnalyzerOptions = {}) {
+  constructor() {
     this.sourceLoader = new SourceFileLoader();
   }
 

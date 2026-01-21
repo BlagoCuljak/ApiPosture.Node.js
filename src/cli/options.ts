@@ -1,4 +1,4 @@
-import { Severity, parseSeverity } from '../core/models/severity.js';
+import { Severity } from '../core/models/severity.js';
 import { SecurityClassification, parseSecurityClassification } from '../core/models/security-classification.js';
 import { HttpMethod, parseHttpMethod } from '../core/models/http-method.js';
 import { EndpointType, parseEndpointType } from '../core/models/endpoint-type.js';

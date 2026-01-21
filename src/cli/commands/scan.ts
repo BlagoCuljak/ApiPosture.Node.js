@@ -17,7 +17,7 @@ import { FastifyDiscoverer } from '../../core/discovery/fastify-discoverer.js';
 import { KoaDiscoverer } from '../../core/discovery/koa-discoverer.js';
 import { RuleEngine } from '../../rules/rule-engine.js';
 import { ScanResult, getHighestSeverity } from '../../core/models/scan-result.js';
-import { Severity, severityOrder, parseSeverity } from '../../core/models/severity.js';
+import { severityOrder, parseSeverity } from '../../core/models/severity.js';
 import { TerminalFormatter } from '../../output/terminal-formatter.js';
 import { JsonFormatter } from '../../output/json-formatter.js';
 import { MarkdownFormatter } from '../../output/markdown-formatter.js';
@@ -62,12 +62,11 @@ async function runScan(
     process.exit(1);
   }
 
-  // Load config if specified
-  let config = {};
+  // Load config if specified (for future use with rule configuration)
   const configPath = cmdOptions.config as string | undefined;
   if (configPath) {
     const configLoader = new ConfigLoader();
-    config = await configLoader.load(configPath);
+    await configLoader.load(configPath);
   }
 
   // Parse options
