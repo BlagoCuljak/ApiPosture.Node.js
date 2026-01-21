@@ -1,0 +1,30 @@
+# Source files
+src/
+tsconfig.json
+
+# Test files
+tests/
+**/*.test.ts
+**/*.spec.ts
+coverage/
+
+# Development files
+.eslintrc*
+.prettierrc*
+.editorconfig
+.vscode/
+
+# Sample projects
+samples/
+
+# Documentation (keep README)
+CLAUDE.md
+
+# Git
+.git/
+.gitignore
+
+# Misc
+*.log
+*.map
+.DS_Store

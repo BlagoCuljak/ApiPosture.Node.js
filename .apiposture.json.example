@@ -1,0 +1,56 @@
+{
+  "rules": {
+    "AP001": {
+      "enabled": true
+    },
+    "AP002": {
+      "enabled": true
+    },
+    "AP003": {
+      "enabled": true
+    },
+    "AP004": {
+      "enabled": true
+    },
+    "AP005": {
+      "enabled": true,
+      "options": {
+        "maxRoles": 3
+      }
+    },
+    "AP006": {
+      "enabled": true
+    },
+    "AP007": {
+      "enabled": true
+    },
+    "AP008": {
+      "enabled": true
+    }
+  },
+  "suppressions": [
+    {
+      "ruleId": "AP001",
+      "route": "/api/health",
+      "reason": "Health check endpoint is intentionally public"
+    },
+    {
+      "ruleId": "AP002",
+      "routePattern": "/api/public/*",
+      "reason": "Public API routes are intentionally unauthenticated"
+    }
+  ],
+  "output": {
+    "format": "terminal",
+    "noColor": false,
+    "noIcons": false
+  },
+  "scan": {
+    "excludePatterns": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/*.test.ts",
+      "**/*.spec.ts"
+    ]
+  }
+}
