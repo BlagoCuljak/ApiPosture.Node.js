@@ -8,6 +8,7 @@ export interface RouteGroup {
 export class RouteGroupRegistry {
   private groups: Map<string, RouteGroup[]> = new Map();
   private routerMounts: Map<string, { prefix: string; routerName: string }[]> = new Map();
+  private pathMiddlewares: { prefix: string; middlewares: string[]; filePath: string }[] = [];
 
   registerGroup(
     filePath: string,
@@ -63,9 +64,25 @@ export class RouteGroupRegistry {
     return group?.middlewares ?? [];
   }
 
+  registerPathMiddleware(filePath: string, prefix: string, middlewares: string[]): void {
+    this.pathMiddlewares.push({ prefix, middlewares, filePath });
+  }
+
+  getPathMiddlewares(route: string): string[] {
+    const result: string[] = [];
+    for (const pm of this.pathMiddlewares) {
+      // Check if route starts with the middleware prefix
+      if (route === pm.prefix || route.startsWith(pm.prefix + '/')) {
+        result.push(...pm.middlewares);
+      }
+    }
+    return result;
+  }
+
   clear(): void {
     this.groups.clear();
     this.routerMounts.clear();
+    this.pathMiddlewares = [];
   }
 
   private makeKey(filePath: string, variableName: string): string {

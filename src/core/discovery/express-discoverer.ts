@@ -47,7 +47,7 @@ export class ExpressDiscoverer implements EndpointDiscoverer {
     const callExpressions = findNodes(sourceFile, ts.isCallExpression);
 
     for (const callExpr of callExpressions) {
-      // Look for app.use('/prefix', router)
+      // Look for app.use('/prefix', router) or app.use('/path', middleware())
       if (!ts.isPropertyAccessExpression(callExpr.expression)) continue;
 
       const propAccess = callExpr.expression;
@@ -61,17 +61,32 @@ export class ExpressDiscoverer implements EndpointDiscoverer {
       const firstArg = args[0];
       const secondArg = args[1];
 
-      // Check for app.use('/prefix', router)
-      if (ts.isStringLiteral(firstArg) && ts.isIdentifier(secondArg)) {
-        const prefix = firstArg.text;
-        const routerName = secondArg.text;
-        const appName = ts.isIdentifier(propAccess.expression)
-          ? propAccess.expression.text
-          : '';
+      // Must start with a string path
+      if (!ts.isStringLiteral(firstArg)) continue;
 
-        if (appName) {
-          this.registry.registerRouterMount(filePath, appName, prefix, routerName);
+      const prefix = firstArg.text;
+      const appName = ts.isIdentifier(propAccess.expression)
+        ? propAccess.expression.text
+        : '';
+
+      if (!appName) continue;
+
+      // Check for app.use('/prefix', router) — router is a simple identifier
+      if (ts.isIdentifier(secondArg)) {
+        this.registry.registerRouterMount(filePath, appName, prefix, secondArg.text);
+      }
+
+      // Also collect path-scoped middleware: app.use('/path', middleware(), ...)
+      // These middleware apply to all routes matching the path prefix
+      const pathMiddlewares: string[] = [];
+      for (let i = 1; i < args.length; i++) {
+        const mwName = this.extractMiddlewareName(args[i], sourceFile);
+        if (mwName) {
+          pathMiddlewares.push(mwName);
         }
+      }
+      if (pathMiddlewares.length > 0) {
+        this.registry.registerPathMiddleware(filePath, prefix, pathMiddlewares);
       }
     }
   }
@@ -118,16 +133,33 @@ export class ExpressDiscoverer implements EndpointDiscoverer {
     // Extract middleware chain (all arguments except last handler)
     const middlewares = this.extractMiddlewares(args, sourceFile);
 
+    // When there are exactly 2 args (path + one function), the function is treated
+    // as the handler. But it might actually be auth middleware (e.g., security.isAuthorized()).
+    // Also extract its name as potential middleware so auth extraction can check it.
+    const lastArg = args[args.length - 1];
+    if (args.length === 2 && ts.isStringLiteral(args[0])) {
+      const lastArgName = this.extractMiddlewareName(lastArg, sourceFile);
+      if (lastArgName) {
+        middlewares.push(lastArgName);
+      }
+    }
+
     // Get handler name
-    const handlerName = this.extractHandlerName(args[args.length - 1], sourceFile);
+    const handlerName = this.extractHandlerName(lastArg, sourceFile);
 
     // Get location
     const location = getLineAndColumn(sourceFile, callExpr.getStart(sourceFile));
 
+    // Include path-scoped middleware registered via app.use('/path', middleware())
+    const pathMiddlewares = this.registry.getPathMiddlewares(fullRoute);
+
     // Extract authorization info
     const authorization = this.authExtractor.extract(middlewares, {
       isRouter: callerName !== 'app',
-      routerMiddlewares: this.registry.getAllMiddlewares(filePath, callerName),
+      routerMiddlewares: [
+        ...this.registry.getAllMiddlewares(filePath, callerName),
+        ...pathMiddlewares,
+      ],
     });
 
     return createEndpoint({
