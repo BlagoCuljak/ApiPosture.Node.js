@@ -1,5 +1,12 @@
 # ApiPosture CLI for Node.js
 
+[![Build and Test](https://github.com/BlagoCuljak/ApiPosture.Node.js/actions/workflows/test.yml/badge.svg)](https://github.com/BlagoCuljak/ApiPosture.Node.js/actions/workflows/test.yml)
+[![npm Version](https://img.shields.io/npm/v/@apiposture/cli?logo=npm&label=npm)](https://www.npmjs.com/package/@apiposture/cli)
+[![npm Downloads](https://img.shields.io/npm/dt/@apiposture/cli?logo=npm&label=Downloads)](https://www.npmjs.com/package/@apiposture/cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-20%20|%2022%20|%2024-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-FFDD00?logo=buy-me-a-coffee&logoColor=black)](https://checkout.revolut.com/pay/525834c6-21cd-4d72-bb99-2dc27d3a0a6d)
+
 Static source-code analysis CLI for Node.js API frameworks to identify authorization misconfigurations and security risks.
 
 ## Features
@@ -9,6 +16,14 @@ Static source-code analysis CLI for Node.js API frameworks to identify authoriza
 - **Multiple Output Formats**: Terminal, JSON, and Markdown
 - **Configurable**: Rule customization and suppression support
 - **CI/CD Ready**: Exit codes for pipeline integration
+
+### Terminal Output
+
+![Terminal Output](assets/images/Node1_result.webp)
+
+### Findings Report
+
+![Findings Report](assets/images/Node2_result.webp)
 
 ## Installation
 
