@@ -7,11 +7,19 @@ export interface AccessibilityOptions {
 }
 
 const severityIcons: Record<Severity, string> = {
-  [Severity.Critical]: '\u26a0\ufe0f',
-  [Severity.High]: '\ud83d\udd34',
-  [Severity.Medium]: '\ud83d\udfe0',
-  [Severity.Low]: '\ud83d\udfe1',
-  [Severity.Info]: '\ud83d\udfe2',
+  [Severity.Critical]: '\u274c',      // Red X
+  [Severity.High]: '\u26a0\ufe0f',   // Warning sign
+  [Severity.Medium]: '\u26a1',        // Lightning bolt
+  [Severity.Low]: '\u2139\ufe0f',    // Info
+  [Severity.Info]: '\u2139\ufe0f',   // Info
+};
+
+const severityLabels: Record<Severity, string> = {
+  [Severity.Critical]: '[CRIT]',
+  [Severity.High]: '[HIGH]',
+  [Severity.Medium]: '[MED]',
+  [Severity.Low]: '[LOW]',
+  [Severity.Info]: '[INFO]',
 };
 
 const severityColors: Record<Severity, string> = {
@@ -23,25 +31,61 @@ const severityColors: Record<Severity, string> = {
 };
 
 const classificationIcons: Record<SecurityClassification, string> = {
-  [SecurityClassification.Public]: '\ud83c\udf10',
-  [SecurityClassification.Authenticated]: '\ud83d\udd10',
-  [SecurityClassification.RoleRestricted]: '\ud83d\udc65',
-  [SecurityClassification.PolicyRestricted]: '\ud83d\udcdc',
+  [SecurityClassification.Public]: '\ud83d\udd13',          // Unlocked
+  [SecurityClassification.Authenticated]: '\ud83d\udd10',   // Lock with key
+  [SecurityClassification.RoleRestricted]: '\ud83d\udd12',  // Locked
+  [SecurityClassification.PolicyRestricted]: '\ud83d\udee1\ufe0f', // Shield
+};
+
+const classificationLabels: Record<SecurityClassification, string> = {
+  [SecurityClassification.Public]: '[PUBLIC]',
+  [SecurityClassification.Authenticated]: '[AUTH]',
+  [SecurityClassification.RoleRestricted]: '[ROLE]',
+  [SecurityClassification.PolicyRestricted]: '[POLICY]',
 };
 
 export class AccessibilityHelper {
   private options: AccessibilityOptions;
 
   constructor(options: Partial<AccessibilityOptions> = {}) {
+    // CLI flag takes highest priority; then auto-detect from environment
+    const noColorFlag = options.noColor ?? false;
+    const noIconsFlag = options.noIcons ?? false;
+
     this.options = {
-      noColor: options.noColor ?? false,
-      noIcons: options.noIcons ?? false,
+      noColor: AccessibilityHelper.determineNoColor(noColorFlag),
+      noIcons: AccessibilityHelper.determineNoIcons(noIconsFlag),
     };
+  }
+
+  private static determineNoColor(noColorFlag: boolean): boolean {
+    if (noColorFlag) return true;
+    // NO_COLOR environment variable (https://no-color.org/)
+    if (process.env['NO_COLOR'] !== undefined && process.env['NO_COLOR'] !== '') return true;
+    // Disable colors when output is redirected (not a TTY)
+    if (process.stdout.isTTY !== true) return true;
+    return false;
+  }
+
+  private static determineNoIcons(noIconsFlag: boolean): boolean {
+    if (noIconsFlag) return true;
+    // Auto-detect: disable icons on Windows legacy consoles (cmd.exe, PowerShell)
+    // which cannot render emoji. Windows Terminal sets WT_SESSION and handles emoji fine.
+    if (process.platform === 'win32' && !process.env['WT_SESSION']) return true;
+    return false;
+  }
+
+  get useColors(): boolean {
+    return !this.options.noColor;
+  }
+
+  get useIcons(): boolean {
+    return !this.options.noIcons;
   }
 
   severityIcon(severity: Severity): string {
     if (this.options.noIcons) {
-      return `[${severity.toUpperCase()}]`;
+      return severityLabels[severity];
     }
     return severityIcons[severity];
   }
@@ -55,7 +99,7 @@ export class AccessibilityHelper {
 
   classificationIcon(classification: SecurityClassification): string {
     if (this.options.noIcons) {
-      return `[${classification}]`;
+      return classificationLabels[classification];
     }
     return classificationIcons[classification];
   }
@@ -106,13 +150,20 @@ export class AccessibilityHelper {
     if (this.options.noIcons) {
       return '[OK]';
     }
-    return '\u2714';
+    return '\u2705';
   }
 
   crossmark(): string {
     if (this.options.noIcons) {
-      return '[X]';
+      return '[FAIL]';
     }
-    return '\u2716';
+    return '\u274c';
+  }
+
+  warningmark(): string {
+    if (this.options.noIcons) {
+      return '[WARN]';
+    }
+    return '\u26a0\ufe0f';
   }
 }
