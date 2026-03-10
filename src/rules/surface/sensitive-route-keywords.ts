@@ -17,7 +17,10 @@ export class SensitiveRouteKeywords implements SecurityRule {
   readonly description = 'Public route contains sensitive keywords';
   readonly severity = Severity.Medium;
 
-  private readonly sensitiveKeywords = [
+  // "health" removed: health-check endpoints are public by convention (K8s probes).
+  // Matching is segment-level to avoid substring FPs (e.g. "test" inside "latest",
+  // "dev" inside "developer").
+  private readonly sensitiveKeywords = new Set([
     'admin',
     'debug',
     'internal',
@@ -38,7 +41,7 @@ export class SensitiveRouteKeywords implements SecurityRule {
     'test',
     'dev',
     'staging',
-  ];
+  ]);
 
   evaluate(endpoint: Endpoint): Finding[] {
     const findings: Finding[] = [];
@@ -50,10 +53,15 @@ export class SensitiveRouteKeywords implements SecurityRule {
       return findings;
     }
 
-    const routeLower = endpoint.route.toLowerCase();
-    const foundKeywords = this.sensitiveKeywords.filter((keyword) =>
-      routeLower.includes(keyword)
-    );
+    // Split route into segments, then split each segment on '-' and '.' so that
+    // e.g. "latest" does not trigger "test" and "developer" does not trigger "dev".
+    const routeSegments = endpoint.route
+      .toLowerCase()
+      .split('/')
+      .filter((s) => s.length > 0 && !s.startsWith(':') && !s.startsWith('{'))
+      .flatMap((seg) => seg.split(/[-_.]/));
+
+    const foundKeywords = routeSegments.filter((part) => this.sensitiveKeywords.has(part));
 
     if (foundKeywords.length > 0) {
       findings.push(
@@ -61,11 +69,11 @@ export class SensitiveRouteKeywords implements SecurityRule {
           ruleId: this.id,
           ruleName: this.name,
           severity: this.severity,
-          message: `${endpoint.method} ${endpoint.route} is public but contains sensitive keywords: ${foundKeywords.join(', ')}`,
+          message: `${endpoint.method} ${endpoint.route} is public but contains sensitive keywords: ${[...new Set(foundKeywords)].join(', ')}`,
           endpoint,
           location: endpoint.location,
           recommendation:
-            `Routes containing "${foundKeywords[0]}" typically indicate sensitive functionality ` +
+            `Routes containing "${[...new Set(foundKeywords)][0]}" typically indicate sensitive functionality ` +
             'that should require authentication. Add authentication middleware or guards, ' +
             'or rename the route if it is truly meant to be public.',
         })

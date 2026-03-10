@@ -3,6 +3,7 @@ import { Finding, createFinding } from '../../core/models/finding.js';
 import { Severity } from '../../core/models/severity.js';
 import { SecurityClassification } from '../../core/models/security-classification.js';
 import { SecurityRule } from '../rule-interface.js';
+import { isKnownPublicEndpoint } from '../known-public-routes.js';
 
 /**
  * AP001: Public without explicit intent
@@ -31,7 +32,8 @@ export class PublicWithoutExplicitIntent implements SecurityRule {
       auth.classification === SecurityClassification.Public &&
       !auth.isExplicitlyPublic &&
       !auth.isAuthenticated &&
-      auth.guardNames.length === 0
+      auth.guardNames.length === 0 &&
+      !isKnownPublicEndpoint(endpoint.route, endpoint.method)
     ) {
       findings.push(
         createFinding({

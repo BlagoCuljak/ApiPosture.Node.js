@@ -16,6 +16,7 @@ export * from './core/discovery/index.js';
 // Rules
 export { RuleEngine } from './rules/rule-engine.js';
 export type { SecurityRule } from './rules/rule-interface.js';
+export { isKnownPublicEndpoint } from './rules/known-public-routes.js';
 
 // Output
 export type { OutputFormatter, FormatterOptions } from './output/formatter-interface.js';

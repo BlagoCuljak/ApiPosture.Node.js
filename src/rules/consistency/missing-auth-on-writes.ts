@@ -4,32 +4,7 @@ import { Severity } from '../../core/models/severity.js';
 import { SecurityClassification } from '../../core/models/security-classification.js';
 import { isWriteMethod } from '../../core/models/http-method.js';
 import { SecurityRule } from '../rule-interface.js';
-
-// Routes that are inherently public (authentication endpoints themselves)
-const AUTH_ENDPOINT_PATTERNS = [
-  /^\/login$/i,
-  /^\/signin$/i,
-  /^\/signup$/i,
-  /^\/register$/i,
-  /^\/auth\/login$/i,
-  /^\/auth\/register$/i,
-  /^\/auth\/signup$/i,
-  /^\/api\/auth\/login$/i,
-  /^\/api\/auth\/register$/i,
-  /^\/api\/auth\/signup$/i,
-  /\/users\/login$/i,
-  /\/users\/register$/i,
-  /\/users\/signup$/i,
-  /\/user\/login$/i,
-  /\/user\/register$/i,
-  /\/user\/signup$/i,
-  /\/user\/reset-password$/i,
-  /\/password\/reset$/i,
-  /\/password\/forgot$/i,
-  /\/forgot-?password$/i,
-  /\/reset-?password$/i,
-  /\/oauth\/token$/i,
-];
+import { isKnownPublicEndpoint } from '../known-public-routes.js';
 
 /**
  * AP004: Missing authentication on write operations
@@ -61,7 +36,7 @@ export class MissingAuthOnWrites implements SecurityRule {
       auth.classification === SecurityClassification.Public &&
       !auth.isAuthenticated &&
       !auth.isExplicitlyPublic &&
-      !this.isAuthEndpoint(endpoint.route)
+      !isKnownPublicEndpoint(endpoint.route, endpoint.method)
     ) {
       findings.push(
         createFinding({
@@ -77,10 +52,6 @@ export class MissingAuthOnWrites implements SecurityRule {
     }
 
     return findings;
-  }
-
-  private isAuthEndpoint(route: string): boolean {
-    return AUTH_ENDPOINT_PATTERNS.some((pattern) => pattern.test(route));
   }
 
   private getRecommendation(endpoint: Endpoint): string {
