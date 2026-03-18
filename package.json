@@ -64,5 +64,9 @@
     "eslint": "^8.56.0",
     "tsx": "^4.7.0",
     "vitest": "^4.0.18"
+  },
+  "overrides": {
+    "minimatch": ">=9.0.7",
+    "flatted": ">=3.4.0"
   }
 }
