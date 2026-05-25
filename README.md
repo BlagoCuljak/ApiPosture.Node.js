@@ -49,6 +49,9 @@ apiposture scan ./src
 # Output as JSON
 apiposture scan -o json
 
+# Output as HTML report
+apiposture scan -o html -f report.html
+
 # Fail CI if critical findings
 apiposture scan --fail-on critical
 ```
@@ -72,7 +75,7 @@ apiposture scan --fail-on critical
 apiposture scan [path]
 
 Options:
-  -o, --output <format>        Output format: terminal, json, markdown (default: terminal)
+  -o, --output <format>        Output format: terminal, json, markdown, html (default: terminal)
   -f, --output-file <path>     Write output to file
   -c, --config <path>          Config file path (.apiposture.json)
   --severity <level>           Min severity: info, low, medium, high, critical

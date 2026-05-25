@@ -4,7 +4,7 @@ import { HttpMethod, parseHttpMethod } from '../core/models/http-method.js';
 import { EndpointType, parseEndpointType } from '../core/models/endpoint-type.js';
 
 export interface ScanOptions {
-  output: 'terminal' | 'json' | 'markdown';
+  output: 'terminal' | 'json' | 'markdown' | 'html';
   outputFile?: string;
   config?: string;
   severity?: Severity;

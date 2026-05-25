@@ -21,6 +21,7 @@ import { severityOrder, parseSeverity } from '../../core/models/severity.js';
 import { TerminalFormatter } from '../../output/terminal-formatter.js';
 import { JsonFormatter } from '../../output/json-formatter.js';
 import { MarkdownFormatter } from '../../output/markdown-formatter.js';
+import { HtmlFormatter } from '../../output/html-formatter.js';
 import { OutputFormatter } from '../../output/formatter-interface.js';
 import { ConfigLoader } from '../../core/configuration/config-loader.js';
 
@@ -28,7 +29,7 @@ export function createScanCommand(): Command {
   const command = new Command('scan')
     .description('Scan a Node.js project for API security issues')
     .argument('[path]', 'Path to the project to scan', '.')
-    .option('-o, --output <format>', 'Output format: terminal, json, markdown', 'terminal')
+    .option('-o, --output <format>', 'Output format: terminal, json, markdown, html', 'terminal')
     .option('-f, --output-file <path>', 'Write output to file')
     .option('-c, --config <path>', 'Path to config file (.apiposture.json)')
     .option('--severity <level>', 'Minimum severity: info, low, medium, high, critical')
@@ -246,6 +247,8 @@ function getFormatter(options: ScanOptions): OutputFormatter {
       return new JsonFormatter();
     case 'markdown':
       return new MarkdownFormatter();
+    case 'html':
+      return new HtmlFormatter();
     case 'terminal':
     default:
       return new TerminalFormatter({
