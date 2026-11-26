@@ -26,6 +26,9 @@
     },
     "AP008": {
       "enabled": true
+    },
+    "AP201": {
+      "enabled": true
     }
   },
   "suppressions": [

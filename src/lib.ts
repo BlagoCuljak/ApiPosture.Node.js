@@ -1,6 +1,6 @@
 /**
  * Library entry point for @apiposture/cli.
- * Re-exports all public types, functions, and classes for use by other packages.
+ * Re-exports public types, functions, and classes for programmatic use.
  */
 
 // Models
@@ -17,6 +17,7 @@ export * from './core/discovery/index.js';
 export { RuleEngine } from './rules/rule-engine.js';
 export type { SecurityRule } from './rules/rule-interface.js';
 export { isKnownPublicEndpoint } from './rules/known-public-routes.js';
+export { HardcodedSecretRule } from './rules/secrets/hardcoded-secret.js';
 
 // Output
 export type { OutputFormatter, FormatterOptions } from './output/formatter-interface.js';

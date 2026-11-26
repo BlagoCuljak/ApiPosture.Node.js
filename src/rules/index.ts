@@ -8,3 +8,4 @@ export * from './privilege/excessive-role-access.js';
 export * from './privilege/weak-role-naming.js';
 export * from './surface/sensitive-route-keywords.js';
 export * from './surface/unprotected-endpoint.js';
+export * from './secrets/hardcoded-secret.js';

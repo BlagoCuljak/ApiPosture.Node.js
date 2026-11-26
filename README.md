@@ -12,7 +12,7 @@ Static source-code analysis CLI for Node.js API frameworks to identify authoriza
 ## Features
 
 - **Multi-Framework Support**: Express.js, NestJS, Fastify, and Koa
-- **8 Security Rules**: Covering exposure, consistency, privilege, and surface area risks
+- **9 Security Rules**: Covering exposure, consistency, privilege, surface area risks, and hardcoded secrets
 - **Multiple Output Formats**: Terminal, JSON, and Markdown
 - **Configurable**: Rule customization and suppression support
 - **CI/CD Ready**: Exit codes for pipeline integration
@@ -68,6 +68,17 @@ apiposture scan --fail-on critical
 | AP006 | Weak role naming | Low | Generic role names like "admin", "user" |
 | AP007 | Sensitive route keywords | Medium | Public route contains admin/debug/internal |
 | AP008 | Unprotected endpoint | High | No middleware chain at all |
+| AP201 | Hardcoded secret | High | Vendor-specific credential committed in source or config |
+
+### AP201: Hardcoded secret
+
+AP201 is a deliberately narrow, high-precision rule. It only matches credentials with distinctive formats: AWS access key IDs, GCP API keys, GitHub tokens, GitLab PATs, Stripe live secret/restricted keys (`sk_live_`/`rk_live_`, not `pk_live_`), Slack tokens and webhooks, SendGrid, npm and DigitalOcean tokens, and PEM private key headers. Generic patterns such as `password = "..."`, JWTs or connection strings are not reported.
+
+- Scans `.js`/`.ts`/`.mjs`/`.cjs` files, `.env` files and `.json`/`.yaml`/`.yml` configs.
+- Skips `test`, `tests`, `spec`, `__tests__`, `__mocks__`, `fixtures`, `testdata`, `samples`, `examples`, `docs`, `node_modules`, `dist`, `build` and `coverage` directories (relative to the scan root), `*.test.*`/`*.spec.*`, `*.min.js`, lockfiles and source maps.
+- Ignores placeholder values (containing `EXAMPLE`, `XXXX`, `your_`, `<`, `${`, `changeme`, `dummy`, `fake`, `sample`, `placeholder`, `redacted`, ...).
+- Secrets are never printed in full: only the first 4 characters are shown.
+- Disable with `"AP201": { "enabled": false }` in the config file (`--config`), or suppress by file with a `route`/`routePattern` suppression on the relative file path.
 
 ## CLI Options
 
@@ -89,11 +100,6 @@ Options:
   --rule <rules>               Filter by rule ID (comma-separated)
   --no-color                   Disable colors
   --no-icons                   Disable icons
-
-License Commands:
-  apiposture license activate <key>    Activate a license
-  apiposture license deactivate        Deactivate current license
-  apiposture license status            Show license status
 ```
 
 ## Configuration
@@ -164,10 +170,6 @@ security-scan:
   script:
     - npx @apiposture/cli scan --fail-on critical
 ```
-
-## Environment Variables
-
-- `APIPOSTURE_LICENSE_KEY`: License key for Pro features
 
 ## License
 

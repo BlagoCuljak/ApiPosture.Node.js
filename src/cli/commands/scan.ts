@@ -23,7 +23,10 @@ import { JsonFormatter } from '../../output/json-formatter.js';
 import { MarkdownFormatter } from '../../output/markdown-formatter.js';
 import { HtmlFormatter } from '../../output/html-formatter.js';
 import { OutputFormatter } from '../../output/formatter-interface.js';
-import { ConfigLoader } from '../../core/configuration/config-loader.js';
+import { ConfigLoader, ApiPostureConfig } from '../../core/configuration/config-loader.js';
+import { SuppressionMatcher } from '../../core/configuration/suppression-matcher.js';
+import { SourceFileLoader } from '../../core/analysis/source-file-loader.js';
+import { HardcodedSecretRule } from '../../rules/secrets/hardcoded-secret.js';
 
 export function createScanCommand(): Command {
   const command = new Command('scan')
@@ -65,9 +68,10 @@ async function runScan(
 
   // Load config if specified (for future use with rule configuration)
   const configPath = cmdOptions.config as string | undefined;
+  let config: ApiPostureConfig = {};
   if (configPath) {
     const configLoader = new ConfigLoader();
-    await configLoader.load(configPath);
+    config = await configLoader.load(configPath);
   }
 
   // Parse options
@@ -129,6 +133,17 @@ async function runScan(
     const ruleEngine = new RuleEngine();
     const findings = ruleEngine.evaluate(result.endpoints);
     result = { ...result, findings };
+
+    // AP201: file-level hardcoded secret detection
+    if (config.rules?.AP201?.enabled !== false) {
+      const secretRule = new HardcodedSecretRule();
+      const files = await new SourceFileLoader().loadDirectory(absolutePath);
+      let secretFindings = await secretRule.scanProject(absolutePath, files);
+      secretFindings = new SuppressionMatcher(config.suppressions).applySuppressionsToFindings(
+        secretFindings
+      );
+      result = { ...result, findings: [...result.findings, ...secretFindings] };
+    }
 
     // Apply filters
     result = applyFilters(result, options);
